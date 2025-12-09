@@ -10,6 +10,7 @@ server:
   service:
     type: NodePort
     nodePortHttps: 30443
+    nodePortHttp: 30081
 
 configs:
   cm:
