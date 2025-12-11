@@ -29,6 +29,5 @@ cert-manager:
         cpu: 100m
         memory: 128Mi
 
-# Placeholder - overridden by cert-manager-values secret via ArgoCD valuesFrom
 acme:
-  email: ""
+  email: "acascais@indocresearch.org"

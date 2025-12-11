@@ -14,10 +14,6 @@ spec:
     helm:
       valueFiles:
         - values.yaml
-      valuesFrom:
-        - secretKeyRef:
-            name: cert-manager-values
-            key: values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
