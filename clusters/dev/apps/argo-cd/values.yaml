@@ -14,7 +14,7 @@ server:
     controller: generic
     ingressClassName: nginx
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-dev
+      cert-manager.io/cluster-issuer: letsencrypt-prod
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
     hostname: argocd.dev.hdc.ebrains.eu
