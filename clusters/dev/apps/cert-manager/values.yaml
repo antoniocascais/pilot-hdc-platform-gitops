@@ -1,11 +1,33 @@
 cert-manager:
-  installCRDs: true
-  controller:
-    resourcesPreset: "nano"
+  crds:
+    enabled: true
+    keep: true
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
   webhook:
-    resourcesPreset: "nano"
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
   cainjector:
-    resourcesPreset: "nano"
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
 
 # Placeholder - overridden by cert-manager-values secret via ArgoCD valuesFrom
 acme:
