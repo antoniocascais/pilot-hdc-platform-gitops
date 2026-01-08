@@ -17,6 +17,9 @@ external-secrets:
         memory: 128Mi
 
   certController:
+    startupProbe:
+      enabled: true
+      useReadinessProbePort: true
     resources:
       requests:
         cpu: 10m
