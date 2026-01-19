@@ -1,6 +1,69 @@
 # pilot-hdc-platform-gitops
 GitOps repository that contains all the related configuration to manage the Pilot-HDC kubernetes clusters
 
+## Vault Bootstrap (One-Time)
+
+After ArgoCD deploys Vault, these manual steps are required once per cluster.
+
+### Initialize & Unseal
+
+```bash
+# Initialize - outputs 5 unseal keys + root token
+kubectl exec -it vault-0 -n vault -- vault operator init
+
+# Store keys securely (dev cluster uses gopass), e.g:
+# gopass ebrains-dev/hdc/ovh/vault-unseal-keys
+
+# Unseal (repeat 3x with different keys)
+kubectl exec -it vault-0 -n vault -- vault operator unseal
+```
+
+### Configure K8s Auth for External Secrets Operator
+
+```bash
+# Port-forward to Vault
+kubectl port-forward -n vault svc/vault 8200:8200 &
+export VAULT_ADDR=http://127.0.0.1:8200
+vault login  # paste root token
+
+# Enable K8s auth
+vault auth enable kubernetes
+
+# Configure K8s auth endpoint
+vault write auth/kubernetes/config \
+  kubernetes_host="https://kubernetes.default.svc"
+
+# Enable KV v2 secrets engine
+vault secrets enable -path=secret kv-v2
+
+# Create read-only policy for ESO
+vault policy write external-secrets - <<EOF
+path "secret/data/*" {
+  capabilities = ["read"]
+}
+path "secret/metadata/*" {
+  capabilities = ["read", "list"]
+}
+EOF
+
+# Create role bound to ESO service account
+vault write auth/kubernetes/role/external-secrets \
+  bound_service_account_names=external-secrets \
+  bound_service_account_namespaces=external-secrets \
+  policies=external-secrets \
+  ttl=1h
+```
+
+### Verify Integration
+
+```bash
+# Create test secret
+vault kv put secret/test foo=bar
+
+# Check ESO synced it (ClusterSecretStore "vault" is pre-configured)
+kubectl get externalsecret -A
+```
+
 ## Acknowledgements
 The development of the HealthDataCloud open source software was supported by the EBRAINS research infrastructure, funded from the European Union's Horizon 2020 Framework Programme for Research and Innovation under the Specific Grant Agreement No. 945539 (Human Brain Project SGA3) and H2020 Research and Innovation Action Grant Interactive Computing E-Infrastructure for the Human Brain Project ICEI 800858.
 
