@@ -11,8 +11,8 @@ postgresql:
           adminPasswordKey: postgres-password
 
   image:
-    repository: hdc-services-external/bitnami/postgresql
-    tag: 16.3.0-debian-12-r19
+    repository: hdc/postgresql
+    tag: 16.3.0-932ab18-pgcron
 
   primary:
     initdb:
