@@ -11,7 +11,7 @@ postgresql:
           adminPasswordKey: postgres-password
 
   image:
-    repository: hdc/postgresql
+    repository: hdc-services-external/postgresql
     tag: 16.3.0-932ab18-pgcron
 
   primary:
