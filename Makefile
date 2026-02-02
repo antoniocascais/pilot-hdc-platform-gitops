@@ -3,7 +3,7 @@ APPS := registry-secrets postgresql keycloak-postgresql redis keycloak auth meta
 REGISTRY_DIR := clusters/dev
 VERSIONS_FILE := clusters/dev/versions.yaml
 
-.PHONY: helm-deps helm-test-eso helm-test-image helm-test-versions sync-versions test clean switch-registry which-registry
+.PHONY: helm-deps helm-test-eso helm-test-image helm-test-versions helm-test-envdup sync-versions test clean switch-registry which-registry
 
 EXPECTED_REGISTRY := $(shell grep 'imageRegistry:' $(REGISTRY_DIR)/registry.yaml 2>/dev/null | awk '{print $$2}')
 
@@ -85,7 +85,12 @@ helm-test-versions: helm-deps
 	check_tag keycloak keycloak keycloak; \
 	exit $$failed
 
-test: helm-test-eso helm-test-image helm-test-versions
+# Detect duplicate env var names that ServerSideApply would reject
+helm-test-envdup: helm-deps
+	@echo "Testing for duplicate env vars..."
+	@bash scripts/check-duplicate-env.sh $(APPS)
+
+test: helm-test-eso helm-test-image helm-test-versions helm-test-envdup
 
 clean:
 	@for app in $(APPS); do \
