@@ -3,6 +3,10 @@ kong:
     annotations:
       helm.sh/hook: post-install, pre-upgrade
       helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    # Chart bug: postgresql.external.database not mapped to KONG_PG_DATABASE
+    extraEnvVars:
+      - name: KONG_PG_DATABASE
+        value: "kong"
 
   global:
     imagePullSecrets:
@@ -54,6 +58,7 @@ kong:
         value: "debug"
       - name: KONG_PLUGINS
         value: "bundled,oidc"
+      # Chart bug: postgresql.external.database not mapped to KONG_PG_DATABASE
       - name: KONG_PG_DATABASE
         value: "kong"
 
