@@ -4,6 +4,9 @@ kafka:
     imagePullSecrets:
       - docker-registry-secret
 
+  image:
+    repository: hdc-services-external/bitnami/kafka
+
   heapOpts: -Xms256M -Xmx256M
   deleteTopicEnable: true
 
@@ -18,6 +21,8 @@ kafka:
     size: 2Gi
 
   zookeeper:
+    image:
+      repository: hdc-services-external/bitnami/zookeeper
     replicaCount: 1
     heapSize: 256
     persistence:
