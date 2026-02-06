@@ -58,6 +58,8 @@ kong:
         value: "debug"
       - name: KONG_PLUGINS
         value: "bundled,oidc"
+      - name: KONG_LUA_SSL_TRUSTED_CERTIFICATE
+        value: "/etc/ssl/certs/ca-certificates.crt"
       # Chart bug: postgresql.external.database not mapped to KONG_PG_DATABASE
       - name: KONG_PG_DATABASE
         value: "kong"
