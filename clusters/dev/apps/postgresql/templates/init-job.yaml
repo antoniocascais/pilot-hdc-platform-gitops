@@ -189,6 +189,7 @@ spec:
               GRANT CONNECT ON DATABASE approval TO approval_user;
               GRANT ALL PRIVILEGES ON DATABASE approval TO approval_user;
               ALTER DATABASE approval OWNER TO approval_user;
+              ALTER DATABASE approval_user OWNER TO approval_user;
               EOSQL
 
               echo "Service users created successfully!"

@@ -22,10 +22,13 @@ This repo uses ArgoCD's app-of-apps pattern: a root Application (`root-app.yaml`
 | 7 | auth | |
 | 8 | metadata | |
 | 8 | project | |
+| 8 | dataops | Data operations (lineage, file ops) |
 | 8 | notification | Email notifications (uses MailHog SMTP) |
+| 8 | approval | Copy request workflows |
 | 8 | kong-postgresql | Kong DB (split from kong for PreSync hook) |
 | 9 | kong | API gateway |
 | 10 | bff | Backend-for-frontend |
+| 11 | portal | Frontend UI |
 
 **Note**: `registry-secrets` (wave 3) will show `SecretSyncError` until Vault is unsealed and the ClusterSecretStore can connect to it — expected on first deploy, resolves via `selfHeal: true`.
 
@@ -117,12 +120,13 @@ vault kv put secret/minio \
 
 | Path | Keys | Used By |
 |------|------|---------|
-| `secret/postgresql` | postgres-password, {metadata,project,auth,dataops,notification}-user-password | postgresql init-job |
+| `secret/postgresql` | postgres-password, {metadata,project,auth,dataops,notification,approval}-user-password | postgresql init-job |
 
 To add or update a service password: `vault kv patch secret/postgresql <service>-user-password=<value>`
 | `secret/keycloak` | admin-password, postgres-password | keycloak |
-| `secret/redis` | password | redis, bff |
+| `secret/redis` | password | redis, bff, approval |
 | `secret/auth` | keycloak-client-secret | auth service |
+| `secret/approval` | db-uri | approval init container (psql + alembic) |
 | `secret/docker-registry/ovh` | username, password | registry-secrets |
 
 ## Acknowledgements
