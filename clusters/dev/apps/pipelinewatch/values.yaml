@@ -44,9 +44,3 @@ pipelinewatch-service:
     limits:
       cpu: 1
       memory: 1000Mi
-
-  readinessProbe:
-    tcpSocket:
-      port: 6063
-    initialDelaySeconds: 10
-    periodSeconds: 10
