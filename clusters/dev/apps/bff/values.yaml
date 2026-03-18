@@ -73,8 +73,7 @@ base-chart-hdc:
     KG_SERVICE: "http://kg-integration.utility:8000"
     APPROVAL_SERVICE: "http://approval.utility:8000"
     SEARCH_SERVICE: "http://search.utility:5064"
-    # TODO: not deployed on OVH yet
-    WORKSPACE_SERVICE: "http://localhost:5068"
+    WORKSPACE_SERVICE: "http://workspace.utility:5068"
     PROVENANCE_SERVICE: "http://localhost:5077"
     # MinIO
     MINIO_HOST: "minio.minio:9000"
