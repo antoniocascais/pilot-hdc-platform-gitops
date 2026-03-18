@@ -43,6 +43,7 @@ project-service:
     S3_GATEWAY_ENABLED: "false"
     S3_BUCKET_ENCRYPTION_ENABLED: "false"
     S3_BUCKET_FOR_PROJECT_LOGOS: project-logos
+    S3_PREFIX_FOR_PROJECT_IMAGE_URLS: "https://object.dev.hdc.ebrains.eu/project-logos"
     OBJECT_STORAGE_PROVIDER: S3
     OPEN_TELEMETRY_ENABLED: "false"
     LOG_LEVEL_DEFAULT: "30"
