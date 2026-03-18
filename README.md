@@ -50,8 +50,46 @@ This repo uses ArgoCD's app-of-apps pattern: a root Application (`root-app.yaml`
 | 10 | bff | Backend-for-frontend (web) |
 | 10 | bff-cli | Backend-for-frontend (CLI) |
 | 11 | portal | Frontend UI |
+| 12 | workspace | Workspace orchestration service |
+| 13 | guacamole-{project} | Per-project Guacamole stack (ApplicationSet) |
 
 **Note**: `registry-secrets` (wave 3) will show `SecretSyncError` until Vault is unsealed and the ClusterSecretStore can connect to it — expected on first deploy, resolves via `selfHeal: true`.
+
+### Workbench (Per-Project ApplicationSets)
+
+Workbench services are deployed per project namespace (`project-{name}`) using ArgoCD ApplicationSets with a git file generator. Each project is defined in `clusters/dev/workbench/projects/{name}.yaml`:
+
+```yaml
+name: myproject
+```
+
+Adding a project file triggers ApplicationSets to create per-project instances of each workbench service. Currently deployed:
+
+| Service | Chart | Components |
+|---------|-------|------------|
+| Guacamole | `clusters/dev/workbench/guacamole-stack/` | guacd + guacamole + PostgreSQL (md5 auth) |
+
+The `projects/` directory is shared across all workbench ApplicationSets — future services (Superset, JupyterHub) will read from the same catalog.
+
+#### Adding a new project
+
+1. Create `clusters/dev/workbench/projects/<name>.yaml` with `name: <name>`
+2. Ensure prerequisites exist:
+   - Vault secret: `vault kv put secret/guacamole pg-password=$(openssl rand -hex 24)`
+   - Keycloak client: `guacamole-<name>` (managed in Terraform)
+3. Commit and push to `main` — ArgoCD creates all per-project Applications automatically
+
+Each project gets: namespace `project-<name>`, its own PostgreSQL, ESO secrets, and ingress at `/workbench/<name>/guacamole/`.
+
+#### Removing a project
+
+Removing a project file does **not** delete the ArgoCD Application or its resources (`applicationsSync: create-update`). To fully decommission:
+
+1. Delete the project file and push
+2. Delete the Application in ArgoCD (resources become orphaned)
+3. Manual cleanup: `kubectl delete ns project-<name>`
+
+**Safety**: `prune: false` on generated Applications — no accidental PVC/StatefulSet deletion. No finalizers on stateful apps.
 
 ### Prerequisites
 - Vault must be unsealed and initialized before apps in wave 3+ can sync
@@ -152,6 +190,7 @@ vault kv put secret/minio \
 | `secret/download` | download-key | download-greenroom, download-core |
 | `secret/kg-integration` | account-secret | kg-integration |
 | `secret/bff-cli` | cli-secret, atlas-password, guacamole-jwt-public-key | bff-cli |
+| `secret/guacamole` | pg-password | guacamole-stack (PG admin + app user, per-project) |
 | `secret/docker-registry/ovh` | username, password | registry-secrets |
 
 To add or update a service password: `vault kv patch secret/postgresql <service>-user-password=<value>`
@@ -174,6 +213,7 @@ HDC splits workloads across namespaces by trust boundary and function:
 | `cert-manager` | TLS | cert-manager |
 | `external-secrets` | Secret sync | External Secrets Operator → Vault |
 | `nfs-provisioner` | Storage | NFS StorageClass for RWX PVCs |
+| `project-{name}` | Per-project workbench | Guacamole (guacd + webapp + PG) — one ns per project |
 
 **High-level data flow**: Portal → BFF → Kong (API gateway) → HDC microservices → backing stores (PostgreSQL, Redis, Kafka, Elasticsearch, MinIO). Files land in the `greenroom` zone first, move to `core` after approval. Keycloak handles authentication, Vault stores all secrets synced via ESO.
 
@@ -231,6 +271,7 @@ Run `make test` before committing. It runs all checks:
 | `helm-test-pullsecrets` | Missing `imagePullSecrets` on pod specs |
 | `helm-test-envvars-rendered` | Env vars defined in values but not rendered by chart |
 | `helm-test-regsecret-coverage` | Namespaces missing docker-registry-secret |
+| `helm-test-workbench` | Workbench charts: images, ESO vars, imagePullSecrets |
 
 ### Additional Resources
 
