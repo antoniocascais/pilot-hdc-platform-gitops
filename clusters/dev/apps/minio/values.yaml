@@ -56,6 +56,20 @@ minio:
   service:
     type: ClusterIP
 
+  # Bucket provisioning (runs as post-install/post-upgrade Job)
+  provisioning:
+    enabled: true
+    buckets:
+      - name: public-resources
+      - name: project-logos
+    # Anonymous read-only access via extraCommands because chart's native
+    # provisioning.policies only supports IAM policies (mc admin policy add) —
+    # no Principal field. Anonymous access needs "Principal":{"AWS":["*"]}
+    # which requires mc anonymous set-json instead.
+    # Note: chart sets mc alias as "provisioning" (not "local")
+    extraCommands:
+      - 'for BUCKET in public-resources project-logos; do printf ''{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::%s/*"]}]}'' "$BUCKET" > /tmp/anon-policy.json && mc anonymous set-json /tmp/anon-policy.json provisioning/$BUCKET; done'
+
   # Encryption via built-in master key (no KES needed)
   extraEnvVars:
     - name: MINIO_KMS_SECRET_KEY
