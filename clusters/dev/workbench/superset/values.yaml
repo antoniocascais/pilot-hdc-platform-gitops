@@ -87,8 +87,34 @@ superset:
       lastname: Admin
       email: admin@superset.com
       password: admin
+    initContainers:
+      - name: wait-for-postgres
+        image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+        imagePullPolicy: "{{ .Values.initImage.pullPolicy }}"
+        envFrom:
+          - secretRef:
+              name: "{{ tpl .Values.envFromSecret . }}"
+        command:
+          - /usr/local/bin/dockerize
+        args:
+          - -wait
+          - "tcp://$(DB_HOST):$(DB_PORT)"
+          - -timeout
+          - 120s
 
   supersetNode:
+    initContainers:
+      - name: wait-for-postgres
+        image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+        imagePullPolicy: "{{ .Values.initImage.pullPolicy }}"
+        envFrom:
+          - secretRef:
+              name: "{{ tpl .Values.envFromSecret . }}"
+        command:
+          - /usr/local/bin/dockerize
+        args:
+          - -wait
+          - tcp://$(DB_HOST):$(DB_PORT)
     resources:
       requests:
         cpu: 10m
@@ -98,6 +124,19 @@ superset:
         memory: 1Gi
 
   supersetWorker:
+    initContainers:
+      - name: wait-for-postgres-redis
+        image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
+        imagePullPolicy: "{{ .Values.initImage.pullPolicy }}"
+        envFrom:
+          - secretRef:
+              name: "{{ tpl .Values.envFromSecret . }}"
+        command:
+          - /usr/local/bin/dockerize
+          - -wait
+          - tcp://$(DB_HOST):$(DB_PORT)
+          - -wait
+          - tcp://$(REDIS_HOST):$(REDIS_PORT)
     resources:
       requests:
         cpu: 10m
