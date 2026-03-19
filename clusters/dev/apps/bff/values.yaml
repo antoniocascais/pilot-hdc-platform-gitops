@@ -1,18 +1,14 @@
 base-chart-hdc:
   image:
     repository: n47w5524.c1.de1.container-registry.ovh.net/hdc-services-image/bff-web
-    tag: "2.2.75"
+    tag: "2.2.82"
     tagPrefix: "bff"
     pullPolicy: IfNotPresent
-
   fullnameOverride: bff
-
   labels:
     app: bff
     instance: bff-service
-
   replicaCount: 1
-
   container:
     name: bff
     ports:
@@ -22,7 +18,6 @@ base-chart-hdc:
       - name: portal-bff
         containerPort: 3000
         protocol: TCP
-
   service:
     type: ClusterIP
     ports:
@@ -34,14 +29,11 @@ base-chart-hdc:
         targetPort: 3000
         protocol: TCP
         name: portal-bff
-
   imagePullSecrets:
     - name: docker-registry-secret
-
   appConfig:
     env: dev
     config_center_enabled: false
-
   extraEnv:
     # Platform config
     SITE_DOMAIN: "https://portal.dev.hdc.ebrains.eu"
@@ -82,7 +74,6 @@ base-chart-hdc:
     # Telemetry disabled
     OPEN_TELEMETRY_ENABLED: "false"
     ENABLE_PROMETHEUS_METRICS: "false"
-
   extraEnvYaml:
     - name: REDIS_PASSWORD
       valueFrom:
@@ -99,7 +90,6 @@ base-chart-hdc:
         secretKeyRef:
           name: bff-credentials
           key: minio-secret-key
-
   resources:
     requests:
       cpu: 10m
@@ -107,7 +97,6 @@ base-chart-hdc:
     limits:
       cpu: 500m
       memory: 500Mi
-
   readinessProbe:
     tcpSocket:
       port: 5060
