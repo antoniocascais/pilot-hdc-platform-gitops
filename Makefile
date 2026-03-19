@@ -161,12 +161,16 @@ helm-test-workbench: helm-deps-workbench
 				failed=1; \
 			fi; \
 		done; \
-		if echo "$$output" | grep -q '{{ .username }}' && \
-		   echo "$$output" | grep -q '{{ .password }}'; then \
-			echo "✓ $$chart: ESO template variables preserved"; \
+		if [ -f $(WORKBENCH_DIR)/$$chart/templates/docker-registry-secret.yaml ]; then \
+			if echo "$$output" | grep -q '{{ .username }}' && \
+			   echo "$$output" | grep -q '{{ .password }}'; then \
+				echo "✓ $$chart: ESO template variables preserved"; \
+			else \
+				echo "✗ $$chart: ESO template variables NOT preserved"; \
+				failed=1; \
+			fi; \
 		else \
-			echo "✗ $$chart: ESO template variables NOT preserved"; \
-			failed=1; \
+			echo "⊘ $$chart: no docker-registry-secret template (skipped ESO check)"; \
 		fi; \
 		if echo "$$output" | grep -q 'imagePullSecrets'; then \
 			echo "✓ $$chart: imagePullSecrets present"; \

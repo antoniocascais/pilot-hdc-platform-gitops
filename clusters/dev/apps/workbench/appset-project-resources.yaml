@@ -30,6 +30,7 @@ spec:
         helm:
           releaseName: project-resources
           valueFiles:
+            - ../../registry.yaml
             - values.yaml
           parameters:
             - name: projectName
