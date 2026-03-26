@@ -71,11 +71,6 @@ auth-service:
         secretKeyRef:
           name: auth-credentials
           key: keycloak-client-secret
-    - name: FREEIPA_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: auth-credentials
-          key: freeipa-username
     - name: FREEIPA_PASSWORD
       valueFrom:
         secretKeyRef:
