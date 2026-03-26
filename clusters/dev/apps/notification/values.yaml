@@ -35,12 +35,8 @@ notification-service:
     PLATFORM_NAME: PILOT
     namespace: utility
     OPEN_TELEMETRY_ENABLED: "false"
-    # SMTP (MailHog — no auth needed)
-    POSTFIX: mailhog.utility
-    POSTFIX_URL: mailhog.utility
-    POSTFIX_PORT: "1025"
-    SMTP_PORT: "1025"
-    SMTP_STARTTLS: "false"
+    POSTFIX: mailout.cscs.ch
+    SMTP_PORT: "25"
     SMTP_USER: ""
     SMTP_PASS: ""
     EMAIL_ATTACHMENT_MAX_SIZE_BYTES: "2097152"
