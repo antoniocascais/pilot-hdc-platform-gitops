@@ -46,7 +46,7 @@ superset:
               "remote_app": {
                   "client_id": os.environ.get("KEYCLOAK_CLIENT_ID"),
                   "client_secret": os.environ.get("KEYCLOAK_SECRET"),
-                  "api_base_url": "https://iam.dev.hdc.ebrains.eu/realms/hdc/protocol/openid-connect/",
+                  "api_base_url": "https://iam.dev.hdc.ebrains.eu/realms/hdc/protocol/",
                   "client_kwargs": {"scope": "email openid profile"},
                   "request_token_url": None,
                   "access_token_url": "https://iam.dev.hdc.ebrains.eu/realms/hdc/protocol/openid-connect/token",
