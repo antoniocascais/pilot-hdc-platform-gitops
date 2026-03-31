@@ -2,7 +2,7 @@ queue-service:
   image:
     repository: n47w5524.c1.de1.container-registry.ovh.net/hdc-services-image/queue/socketio
     pullPolicy: IfNotPresent
-    tag: "2.2.15"
+    tag: "socketio-2.2.16"
   fullnameOverride: queue-socketio
   replicaCount: 1
   container:
