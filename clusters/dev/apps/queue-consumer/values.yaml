@@ -2,31 +2,24 @@ queue-service:
   image:
     repository: n47w5524.c1.de1.container-registry.ovh.net/hdc-services-image/queue/consumer
     pullPolicy: IfNotPresent
-    tag: "consumer-2.2.13"  # prefixed tag — NOT from versions.yaml
-
+    tag: "2.2.15" # prefixed tag — NOT from versions.yaml
   fullnameOverride: queue-consumer
   replicaCount: 1
-
   container:
     port: 6060
-
   service:
     type: ClusterIP
     port: 6060
     targetPort: 6060
-
   imagePullSecrets:
     - name: docker-registry-secret
-
   serviceAccount:
     create: true
     name: queue-consumer
-
   appConfig:
     env: dev
     config_center_enabled: "false"
     config_center_base_url: ""
-
   extraEnv:
     # -- Pipeline config --
     bids_validate_pipeline: "bids_validate"
@@ -70,7 +63,6 @@ queue-service:
     REDIS_PORT: "6379"
     ATLAS_HOST: "atlas.utility"
     ATLAS_PORT: "21000"
-
   # Secrets — all pass-through to spawned Jobs (consumer itself uses none except RabbitMQ creds)
   extraEnvYaml:
     - name: gm_username
@@ -98,7 +90,6 @@ queue-service:
         secretKeyRef:
           name: queue-consumer-credentials
           key: minio-secret-key
-
   resources:
     requests:
       cpu: 10m
@@ -106,7 +97,6 @@ queue-service:
     limits:
       cpu: 1
       memory: 1000Mi
-
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
