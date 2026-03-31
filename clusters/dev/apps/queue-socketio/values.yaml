@@ -2,31 +2,24 @@ queue-service:
   image:
     repository: n47w5524.c1.de1.container-registry.ovh.net/hdc-services-image/queue/socketio
     pullPolicy: IfNotPresent
-    tag: "socketio-2.2.13"
-
+    tag: "2.2.15"
   fullnameOverride: queue-socketio
   replicaCount: 1
-
   container:
     port: 6062
-
   service:
     type: ClusterIP
     port: 6062
     targetPort: 6062
-
   imagePullSecrets:
     - name: docker-registry-secret
-
   appConfig:
     env: dev
     config_center_enabled: "false"
     config_center_base_url: ""
-
   extraEnv:
     # -- RabbitMQ --
     gm_queue_endpoint: "message-bus-greenroom.greenroom"
-
   extraEnvYaml:
     - name: gm_username
       valueFrom:
@@ -38,7 +31,6 @@ queue-service:
         secretKeyRef:
           name: queue-socketio-credentials
           key: rabbitmq-password
-
   resources:
     requests:
       cpu: 10m
@@ -46,19 +38,16 @@ queue-service:
     limits:
       cpu: 1
       memory: 1000Mi
-
   readinessProbe:
     tcpSocket:
       port: 6062
     initialDelaySeconds: 5
     periodSeconds: 10
-
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: "33%"
-
   ingress:
     enabled: true
     hostname: dev.hdc.ebrains.eu
