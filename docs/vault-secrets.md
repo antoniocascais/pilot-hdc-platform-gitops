@@ -30,7 +30,8 @@ vault kv patch secret/postgresql <service>-user-password=$(openssl rand -hex 24)
 ```bash
 vault kv put secret/keycloak \
   admin-password=$(openssl rand -hex 24) \
-  postgres-password=$(openssl rand -hex 24)
+  postgres-password=$(openssl rand -hex 24) \
+  keycloak-user-password=$(openssl rand -hex 24)
 ```
 
 ## Redis (`secret/redis`)
