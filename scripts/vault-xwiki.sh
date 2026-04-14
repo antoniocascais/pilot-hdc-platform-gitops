@@ -5,14 +5,21 @@
 #
 # Usage:
 #   kubectl port-forward -n vault vault-0 8200:8200 &
-#   OIDC_SECRET=<value> bash scripts/vault-xwiki.sh
-#
-# Env-specific values to change for prod:
-#   - xwiki.home          → https://xwiki.hdc.ebrains.eu
-#   - oidc.xwikiprovider  → https://xwiki.hdc.ebrains.eu/oidc
-#   - oidc.endpoint.*     → iam.hdc.ebrains.eu (drop .dev)
-#   - oidc.groups.claim   → must match KC group mapper claim_name (currently "group")
+#   OIDC_SECRET=<value> bash scripts/vault-xwiki.sh            # dev (default)
+#   ENV=prod OIDC_SECRET=<value> bash scripts/vault-xwiki.sh   # prod
 set -euo pipefail
+
+ENV="${ENV:-dev}"
+
+# dev → xwiki.dev.hdc.ebrains.eu / iam.dev.hdc.ebrains.eu
+# prod → xwiki.hdc.ebrains.eu    / iam.hdc.ebrains.eu
+if [[ "$ENV" == "prod" ]]; then
+  DOMAIN_BASE="hdc.ebrains.eu"
+else
+  DOMAIN_BASE="${ENV}.hdc.ebrains.eu"
+fi
+XWIKI_HOST="xwiki.${DOMAIN_BASE}"
+IAM_HOST="iam.${DOMAIN_BASE}"
 
 export VAULT_ADDR=http://127.0.0.1:8200
 
@@ -30,7 +37,7 @@ vault kv put secret/xwiki \
   xwiki-cfg="xwiki.encoding=UTF-8
 xwiki.store.migration=1
 
-xwiki.home=https://xwiki.dev.hdc.ebrains.eu
+xwiki.home=https://${XWIKI_HOST}
 xwiki.url.protocol=https
 xwiki.webapppath=
 xwiki.inactiveuser.allowedpages=
@@ -76,10 +83,10 @@ xwiki.plugins=\\
   com.xpn.xwiki.plugin.zipexplorer.ZipExplorerPlugin" \
   xwiki-properties="environment.permanentDirectory=/usr/local/xwiki/data
 
-oidc.xwikiprovider=https://xwiki.dev.hdc.ebrains.eu/oidc
-oidc.endpoint.authorization=https://iam.dev.hdc.ebrains.eu/realms/hdc/protocol/openid-connect/auth
-oidc.endpoint.token=https://iam.dev.hdc.ebrains.eu/realms/hdc/protocol/openid-connect/token
-oidc.endpoint.userinfo=https://iam.dev.hdc.ebrains.eu/realms/hdc/protocol/openid-connect/userinfo
+oidc.xwikiprovider=https://${XWIKI_HOST}/oidc
+oidc.endpoint.authorization=https://${IAM_HOST}/realms/hdc/protocol/openid-connect/auth
+oidc.endpoint.token=https://${IAM_HOST}/realms/hdc/protocol/openid-connect/token
+oidc.endpoint.userinfo=https://${IAM_HOST}/realms/hdc/protocol/openid-connect/userinfo
 oidc.scope=openid,profile,email,groups
 oidc.endpoint.userinfo.method=GET
 oidc.user.nameFormater=\${oidc.user.preferredUsername._clean._lowerCase}
@@ -91,7 +98,7 @@ oidc.endpoint.token.auth_method=client_secret_basic
 oidc.skipped=false
 oidc.groups.claim=group"
 
-echo "Done."
+echo "Done (env=$ENV)."
 echo "  PG password: $PG_PASS"
 echo "  Validation key: $VALIDATION_KEY"
 echo "  Encryption key: $ENCRYPTION_KEY"
